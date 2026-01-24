@@ -1,0 +1,11 @@
+.claude/
+.turbo/
+turbo-cache/
+turbo-build.*
+packages/**/.turbo
+.turbosum
+node_modules/
+packages/*/dist/
+
+.DS_Store
+.env
