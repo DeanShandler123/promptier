@@ -60,11 +60,16 @@ const response = await generateText({
 
 ## Packages
 
-| Package                            | Description                               | Docs                                |
-| ---------------------------------- | ----------------------------------------- | ----------------------------------- |
-| [@promptier/core](./packages/core) | SDK for composing and rendering prompts   | [README](./packages/core/README.md) |
-| [@promptier/lint](./packages/lint) | Linting engine with heuristic rules       | [README](./packages/lint/README.md) |
-| [@promptier/cli](./packages/cli)   | CLI for linting, rendering, and debugging | [README](./packages/cli/README.md)  |
+| Package | Version | Description |
+| ------- | ------- | ----------- |
+| **[@promptier/core](https://www.npmjs.com/package/@promptier/core)** | [![npm](https://img.shields.io/npm/v/@promptier/core.svg)](https://www.npmjs.com/package/@promptier/core) | Prompt composition and rendering |
+| **[@promptier/lint](https://www.npmjs.com/package/@promptier/lint)** | [![npm](https://img.shields.io/npm/v/@promptier/lint.svg)](https://www.npmjs.com/package/@promptier/lint) | Linting engine with heuristic rules |
+| **[@promptier/cli](https://www.npmjs.com/package/@promptier/cli)** | [![npm](https://img.shields.io/npm/v/@promptier/cli.svg)](https://www.npmjs.com/package/@promptier/cli) | CLI for linting, rendering, debugging |
+
+```bash
+# Install all packages
+npm install @promptier/core @promptier/lint @promptier/cli
+```
 
 ## Features
 
