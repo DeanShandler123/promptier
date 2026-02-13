@@ -27,6 +27,7 @@ program
   .command('lint [files...]')
   .description('Lint prompts for issues')
   .option('--fix', 'Auto-fix issues where possible')
+  .option('--semantic', 'Enable LLM-powered semantic linting (requires Ollama)')
   .option('-f, --format <format>', 'Output format (text or json)', 'text')
   .option('-c, --config <path>', 'Path to config file')
   .action(lintCommand);
