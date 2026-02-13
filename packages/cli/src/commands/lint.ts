@@ -3,7 +3,13 @@ import { resolve, relative } from 'path';
 
 import pc from 'picocolors';
 import { createJiti } from 'jiti';
-import { Linter, type LintResult, type LintRule } from '@promptier/lint';
+import {
+  Linter,
+  createLlmClient,
+  type LintResult,
+  type LintRule,
+  type LlmConfig,
+} from '@promptier/lint';
 import type { Prompt, LintWarning, promptierConfig } from '@promptier/core';
 
 // Create jiti instance for loading TypeScript files
@@ -14,6 +20,7 @@ const jiti = createJiti(import.meta.url, {
 
 interface LintOptions {
   fix?: boolean;
+  semantic?: boolean;
   format?: 'text' | 'json';
   config?: string;
 }
@@ -55,9 +62,43 @@ export async function lintCommand(
 
   // Load config and create linter with custom rules
   const config = await loadConfig(options.config);
+
+  // Resolve LLM config: --semantic flag overrides config file
+  let llmConfig: LlmConfig | undefined;
+  const semanticEnabled = options.semantic || config?.lint?.llm?.enabled;
+
+  if (semanticEnabled) {
+    llmConfig = {
+      enabled: true,
+      provider: config?.lint?.llm?.provider ?? 'ollama',
+      model: config?.lint?.llm?.model ?? 'llama3.2:3b',
+      host: config?.lint?.llm?.host ?? 'http://localhost:11434',
+      timeout: config?.lint?.llm?.timeout,
+    };
+
+    // Run health check before linting — reuse client via llmConfig.client
+    const client = createLlmClient(llmConfig);
+    const health = await client.healthCheck();
+
+    if (!health.ok) {
+      console.log(pc.yellow(`Semantic linting unavailable: ${health.error}`));
+      console.log(pc.dim('Continuing with heuristic rules only.\n'));
+      llmConfig = undefined;
+    } else {
+      console.log(
+        pc.dim(
+          `Using ${llmConfig.provider ?? 'ollama'} (${client.modelName}) for semantic analysis\n`,
+        ),
+      );
+      // Pass the verified client so the linter doesn't create a second one
+      llmConfig.client = client;
+    }
+  }
+
   const linter = new Linter({
     rules: config?.lint?.rules,
     custom: config?.lint?.custom as LintRule[] | undefined,
+    llm: llmConfig,
   });
 
   // Find files to lint
@@ -106,10 +147,19 @@ export async function lintCommand(
   // Summary
   const elapsed = Date.now() - startTime;
   console.log('\n' + pc.dim('─'.repeat(50)));
+  const totalLlmCalls = allResults.reduce(
+    (sum, r) => sum + r.result.stats.llmCalls,
+    0,
+  );
+  const semanticSuffix =
+    totalLlmCalls > 0
+      ? ` (includes ${totalLlmCalls} semantic check${totalLlmCalls !== 1 ? 's' : ''})`
+      : '';
   console.log(
     `${totalErrors > 0 ? pc.red(`${totalErrors} error${totalErrors !== 1 ? 's' : ''}`) : pc.green('0 errors')}, ` +
       `${totalWarnings > 0 ? pc.yellow(`${totalWarnings} warning${totalWarnings !== 1 ? 's' : ''}`) : '0 warnings'}, ` +
-      `${totalInfo} info`,
+      `${totalInfo} info` +
+      semanticSuffix,
   );
   console.log(
     pc.dim(
@@ -197,6 +247,10 @@ function formatWarning(
     line += '\n             ' + pc.dim(warning.suggestion);
   }
 
+  if (warning.evidence) {
+    line += '\n             ' + pc.dim(`"${warning.evidence}"`);
+  }
+
   if (warning.position) {
     const posStr = warning.position.column
       ? `at line ${warning.position.line}:${warning.position.column}`
@@ -211,12 +265,6 @@ function formatWarning(
  * Find all prompt files in a directory
  */
 async function findPromptFiles(dir: string): Promise<string[]> {
-  const { glob: _glob } = await import('fs').then((_fs) => {
-    // Use simple file walking if glob not available
-    return { glob: null };
-  });
-
-  // Simple implementation: look for *.agent.ts files
   const { readdirSync, statSync } = await import('fs');
   const files: string[] = [];
 
@@ -253,25 +301,21 @@ async function loadPromptFromFile(filePath: string): Promise<Prompt | null> {
     return null;
   }
 
-  try {
-    // Use jiti to load TypeScript/JavaScript modules
-    const module = (await jiti.import(filePath)) as Record<string, unknown>;
+  // Use jiti to load TypeScript/JavaScript modules
+  const module = (await jiti.import(filePath)) as Record<string, unknown>;
 
-    // Look for exported prompts
-    for (const [_key, value] of Object.entries(module)) {
-      if (
-        value &&
-        typeof value === 'object' &&
-        'render' in value &&
-        'sections' in value
-      ) {
-        return value as Prompt;
-      }
+  // Look for exported prompts
+  for (const [_key, value] of Object.entries(module)) {
+    if (
+      value &&
+      typeof value === 'object' &&
+      'render' in value &&
+      'sections' in value
+    ) {
+      return value as Prompt;
     }
-
-    console.warn(pc.yellow(`No prompt found in ${filePath}`));
-    return null;
-  } catch (error) {
-    throw error;
   }
+
+  console.warn(pc.yellow(`No prompt found in ${filePath}`));
+  return null;
 }

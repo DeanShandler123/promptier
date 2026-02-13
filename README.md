@@ -188,7 +188,7 @@ const result = await linter.lint(agent);
 // result.errors, result.warnings, result.info
 ```
 
-Built-in rules catch:
+Built-in heuristic rules catch:
 
 - Token limit violations
 - Model/format mismatches
@@ -196,6 +196,45 @@ Built-in rules catch:
 - Missing identity sections
 - Security concerns (user input in system prompts)
 - Contradictory instructions
+
+#### Semantic Linting (LLM-powered)
+
+For deeper analysis, promptier can use a local LLM via [Ollama](https://ollama.ai) to catch issues heuristics can't — contradictions, ambiguity, injection vulnerabilities, verbosity, and more.
+
+```bash
+# One-time setup
+ollama pull llama3.2:3b
+
+# Run with semantic analysis
+promptier lint --semantic
+```
+
+Semantic linting catches:
+
+- **Contradictions** — instructions that conflict with each other
+- **Ambiguity** — vague instructions open to misinterpretation
+- **Injection vulnerabilities** — patterns that could allow prompt injection
+- **Verbosity** — redundant phrasing that wastes tokens
+- **Missing best practices** — no error handling, missing edge case guidance
+- **Scope creep** — instructions beyond the agent's stated role
+
+Runs locally, no data leaves your machine. If Ollama isn't running, the linter falls back to heuristic rules only.
+
+Enable permanently in config:
+
+```typescript
+// promptier.config.ts
+import { defineConfig } from '@promptier/core';
+
+export default defineConfig({
+  lint: {
+    llm: {
+      enabled: true,
+      model: 'llama3.2:3b', // default
+    },
+  },
+});
+```
 
 See [lint rules documentation](./packages/lint/README.md#built-in-rules) for the full list.
 
@@ -208,10 +247,25 @@ npm install -g @promptier/cli
 ```bash
 promptier init              # Initialize project
 promptier lint              # Lint all prompts
+promptier lint --semantic   # Lint with LLM-powered semantic analysis
 promptier render agent.ts   # Render prompt to stdout
 promptier tokens agent.ts   # Count tokens
 promptier blame agent.ts    # Trace prompt origins (like git blame)
 ```
+
+#### File discovery
+
+By default, `promptier lint` recursively finds all `*.agent.ts` and `*.agent.js` files in the current directory. You can also pass specific files:
+
+```bash
+# Auto-discover *.agent.ts files
+promptier lint
+
+# Lint specific files (any file that exports a Prompt works)
+promptier lint src/prompts/support.ts lib/my-agent.ts
+```
+
+Any file that exports an object with `render()` and `sections` properties (i.e., a `Prompt` built with `prompt().build()`) will be picked up.
 
 See [CLI documentation](./packages/cli/README.md) for all commands.
 

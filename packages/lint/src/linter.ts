@@ -2,6 +2,7 @@ import { Prompt, getModelConfig, type LintWarning } from '@promptier/core';
 
 import type {
   LinterConfig,
+  LlmConfig,
   LintResult,
   LintContext,
   LintRule,
@@ -10,6 +11,9 @@ import type {
   RuleOptions,
 } from './types.js';
 import { heuristicRules } from './rules/heuristic/index.js';
+import type { LlmClient } from './llm/client.js';
+import { createLlmClient } from './llm/create-client.js';
+import { createSemanticRule } from './llm/semantic-rules.js';
 
 /**
  * Parse rule config into severity and options
@@ -76,6 +80,9 @@ function parseIgnoredRules(text: string): Set<string> {
 export class Linter {
   private rules: Map<string, LintRule> = new Map();
   private ruleConfig: Map<string, RuleConfig> = new Map();
+  private llmConfig?: LlmConfig;
+  private llmClient?: LlmClient;
+  private semanticRule?: LintRule;
 
   constructor(config: LinterConfig = {}) {
     // Register all heuristic rules
@@ -105,8 +112,10 @@ export class Linter {
       }
     }
 
-    // LLM config reserved for future semantic linting
-    // this.llmConfig = config.llm;
+    // Store LLM config for lazy initialization
+    if (config.llm?.enabled) {
+      this.llmConfig = config.llm;
+    }
   }
 
   /**
@@ -176,6 +185,38 @@ export class Linter {
       } catch (error) {
         // Log rule error but continue
         console.warn(`Lint rule '${ruleId}' failed:`, error);
+      }
+    }
+
+    // Run semantic rule if LLM is enabled and no heuristic errors
+    const hasHeuristicErrors = allWarnings.some((w) => w.severity === 'error');
+
+    if (this.llmConfig && !hasHeuristicErrors && !ignoreAll) {
+      try {
+        // Lazy init
+        if (!this.llmClient) {
+          this.llmClient =
+            this.llmConfig.client ?? createLlmClient(this.llmConfig);
+          this.semanticRule = createSemanticRule(this.llmClient);
+        }
+
+        const rule = this.semanticRule;
+        if (!rule) throw new Error('Semantic rule failed to initialize');
+
+        const semanticWarnings = await rule.check(context);
+        llmCalls++;
+
+        for (const warning of semanticWarnings) {
+          allWarnings.push(warning);
+        }
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : 'Unknown error';
+        allWarnings.push({
+          id: 'semantic-unavailable',
+          category: 'best-practice',
+          severity: 'info',
+          message: `Semantic linting unavailable: ${msg}`,
+        });
       }
     }
 

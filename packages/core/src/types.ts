@@ -182,6 +182,7 @@ export interface LintWarning {
   };
   fragments?: string[];
   suggestion?: string;
+  evidence?: string;
 }
 
 export type LintSeverity = 'error' | 'warning' | 'info';
@@ -274,8 +275,9 @@ export interface promptierConfig {
     custom?: unknown[];
     llm?: {
       enabled?: boolean;
-      provider?: 'ollama';
+      provider?: 'ollama' | 'openai' | 'ai-sdk' | (string & {});
       model?: string;
+      host?: string;
       timeout?: number;
     };
   };

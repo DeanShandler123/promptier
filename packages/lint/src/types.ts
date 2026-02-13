@@ -6,6 +6,8 @@ import type {
   SectionConfig,
 } from '@promptier/core';
 
+import type { LlmClient } from './llm/client.js';
+
 /**
  * Rule severity level
  */
@@ -69,10 +71,12 @@ export interface LinterConfig {
  */
 export interface LlmConfig {
   enabled?: boolean;
-  provider?: 'ollama';
+  provider?: 'ollama' | 'openai' | 'ai-sdk' | (string & {});
   model?: string;
   host?: string;
   timeout?: number;
+  /** Pre-built LLM client. When provided, bypasses the built-in provider factory. */
+  client?: LlmClient;
 }
 
 /**

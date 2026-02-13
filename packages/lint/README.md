@@ -290,10 +290,12 @@ interface LintWarning {
   severity: LintSeverity;   // 'error' | 'warning' | 'info'
   message: string;          // Human-readable message
   suggestion?: string;      // Optional fix suggestion
+  evidence?: string;        // Optional quoted text from prompt (semantic rules)
   position?: {              // Optional source location
+    start: number;
+    end: number;
     line: number;
     column: number;
-    offset: number;
   };
 }
 ```
@@ -370,10 +372,100 @@ interface LintResult {
   stats: {
     rulesChecked: number;
     timeMs: number;
-    llmCalls: number;       // Reserved for future semantic linting
+    llmCalls: number;       // Number of LLM calls made (semantic linting)
   };
 }
 ```
+
+## Semantic Linting (LLM-powered)
+
+Enable LLM-powered analysis to catch issues heuristics can't — contradictions, ambiguity, injection risks, verbosity, and more. Runs locally via [Ollama](https://ollama.ai).
+
+```bash
+ollama pull llama3.2:3b
+```
+
+```typescript
+const linter = new Linter({
+  llm: {
+    enabled: true,
+    model: 'llama3.2:3b', // default
+  },
+});
+
+const result = await linter.lint(agent);
+// result.info may include semantic-* findings
+```
+
+### Semantic Rules
+
+| Rule | Category | Description |
+| ------ | ---------- | ------------- |
+| `semantic-contradiction` | contradiction | Instructions that conflict with each other |
+| `semantic-ambiguity` | ambiguity | Vague instructions open to misinterpretation |
+| `semantic-injection-risk` | security | Patterns vulnerable to prompt injection |
+| `semantic-verbosity` | token-budget | Redundant phrasing that wastes tokens |
+| `semantic-missing-practice` | best-practice | Missing error handling or edge case guidance |
+| `semantic-scope-creep` | best-practice | Instructions beyond the agent's stated role |
+
+### Custom LLM Client
+
+You can bring your own `LlmClient` implementation instead of using the built-in Ollama client. This is useful for connecting to OpenAI, Anthropic, or any other provider:
+
+```typescript
+import { Linter, type LlmClient } from '@promptier/lint';
+
+const myClient: LlmClient = {
+  modelName: 'gpt-4o',
+  async generate(prompt, system) {
+    // Call your preferred LLM provider
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          ...(system ? [{ role: 'system', content: system }] : []),
+          { role: 'user', content: prompt },
+        ],
+      }),
+    });
+    const data = await response.json();
+    return data.choices[0].message.content;
+  },
+  async healthCheck() {
+    return { ok: true };
+  },
+};
+
+const linter = new Linter({
+  llm: {
+    enabled: true,
+    client: myClient, // Bypasses built-in provider factory
+  },
+});
+```
+
+### LlmClient Interface
+
+```typescript
+interface LlmClient {
+  generate(prompt: string, system?: string): Promise<string>;
+  healthCheck(): Promise<{ ok: boolean; error?: string }>;
+  readonly modelName: string;
+}
+```
+
+| Method | Description |
+| -------- | ------------- |
+| `generate(prompt, system?)` | Send a prompt (with optional system message) and return the raw text response |
+| `healthCheck()` | Verify the provider is reachable and the model is available |
+| `modelName` | Display name of the configured model |
+
+When `client` is provided on `LlmConfig`, the `provider`, `model`, `host`, and `timeout` fields are ignored — your client is used directly.
 
 ## License
 
