@@ -1,6 +1,6 @@
 {
   "name": "@promptier/lint",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Linting engine for promptier prompts",
   "type": "module",
   "main": "./dist/index.js",
@@ -30,7 +30,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@promptier/core": "^0.1.0"
+    "@promptier/core": "^0.2.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

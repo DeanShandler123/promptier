@@ -1,6 +1,6 @@
 {
   "name": "@promptier/core",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Core SDK for composing, rendering, and tracing LLM system prompts",
   "type": "module",
   "main": "./dist/index.js",

@@ -1,6 +1,6 @@
 {
   "name": "@promptier/cli",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "CLI for promptier - trace your prompts",
   "type": "module",
   "bin": {
@@ -21,8 +21,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@promptier/core": "^0.1.0",
-    "@promptier/lint": "^0.1.0",
+    "@promptier/core": "^0.2.0",
+    "@promptier/lint": "^0.2.0",
     "commander": "^12.0.0",
     "jiti": "^2.4.0",
     "picocolors": "^1.0.0"
