@@ -51,6 +51,9 @@
     "url": "git+https://github.com/DeanShandler123/promptier.git",
     "directory": "packages/lint"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "homepage": "https://github.com/DeanShandler123/promptier#readme",
   "bugs": {
     "url": "https://github.com/DeanShandler123/promptier/issues"
