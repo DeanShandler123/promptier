@@ -1,7 +1,7 @@
 import type { LintWarning } from '@promptier/core';
 
-import type { LintRule, LintContext } from '../types.js';
-import type { LlmClient } from './client.js';
+import type { LintRule, LintContext } from '../../types.js';
+import type { LlmClient } from '../../llm/client.js';
 import { renderLinterPrompt } from './system-prompt.js';
 import { parseSemanticResponse } from './parser.js';
 

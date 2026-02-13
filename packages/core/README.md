@@ -38,34 +38,34 @@ Creates a new `PromptBuilder` for fluent prompt composition.
 
 ### PromptBuilder Methods
 
-| Method | Description |
-|--------|-------------|
-| `.model(id)` | Set target model (e.g., `'claude-sonnet-4-20250514'`, `'gpt-4o'`) |
-| `.identity(content)` | Define who the agent is |
-| `.capabilities(content)` | List what the agent can do |
-| `.constraints(content)` | Define what the agent must not do |
-| `.domain(content)` | Add domain-specific knowledge |
-| `.tools(definitions)` | Add tool definitions |
-| `.examples(content)` | Add few-shot examples |
-| `.format(content)` | Specify output format |
-| `.context(fn)` | Add dynamic runtime context |
-| `.custom(name, content)` | Add custom named section |
-| `.options(opts)` | Set rendering options |
-| `.build()` | Build the Prompt instance |
+| Method                   | Description                                                       |
+| ------------------------ | ----------------------------------------------------------------- |
+| `.model(id)`             | Set target model (e.g., `'claude-sonnet-4-20250514'`, `'gpt-4o'`) |
+| `.identity(content)`     | Define who the agent is                                           |
+| `.capabilities(content)` | List what the agent can do                                        |
+| `.constraints(content)`  | Define what the agent must not do                                 |
+| `.domain(content)`       | Add domain-specific knowledge                                     |
+| `.tools(definitions)`    | Add tool definitions                                              |
+| `.examples(content)`     | Add few-shot examples                                             |
+| `.format(content)`       | Specify output format                                             |
+| `.context(fn)`           | Add dynamic runtime context                                       |
+| `.custom(name, content)` | Add custom named section                                          |
+| `.options(opts)`         | Set rendering options                                             |
+| `.build()`               | Build the Prompt instance                                         |
 
 ### Section Types
 
-| Type | Cacheable | Description |
-|------|-----------|-------------|
-| `identity` | Yes | Who the agent is |
-| `capabilities` | Yes | What the agent can do |
-| `constraints` | Yes | What the agent must not do |
-| `domain` | Yes | Domain knowledge and context |
-| `tools` | Yes | Available tool definitions |
-| `examples` | Yes | Few-shot examples |
-| `format` | Yes | Output format instructions |
-| `context` | No | Dynamic runtime context |
-| `custom` | Configurable | User-defined sections |
+| Type           | Cacheable    | Description                  |
+| -------------- | ------------ | ---------------------------- |
+| `identity`     | Yes          | Who the agent is             |
+| `capabilities` | Yes          | What the agent can do        |
+| `constraints`  | Yes          | What the agent must not do   |
+| `domain`       | Yes          | Domain knowledge and context |
+| `tools`        | Yes          | Available tool definitions   |
+| `examples`     | Yes          | Few-shot examples            |
+| `format`       | Yes          | Output format instructions   |
+| `context`      | No           | Dynamic runtime context      |
+| `custom`       | Configurable | User-defined sections        |
 
 ### Prompt Methods
 
@@ -143,7 +143,11 @@ registerModel('my-model', {
 ### Token Utilities
 
 ```typescript
-import { countTokens, estimateTokens, exceedsContextWindow } from '@promptier/core';
+import {
+  countTokens,
+  estimateTokens,
+  exceedsContextWindow,
+} from '@promptier/core';
 
 // Accurate count (uses tiktoken)
 const count = await countTokens(text, 'claude-sonnet-4-20250514');
@@ -158,13 +162,18 @@ const exceeds = await exceedsContextWindow(text, 'gpt-4o');
 ### Formatters
 
 ```typescript
-import { XmlFormatter, MarkdownFormatter, PlainFormatter } from '@promptier/core';
+import {
+  XmlFormatter,
+  MarkdownFormatter,
+  PlainFormatter,
+} from '@promptier/core';
 
 const formatter = new XmlFormatter();
 const output = formatter.format(sections);
 ```
 
 Prompts automatically format for the target model:
+
 - **Claude**: XML tags (`<identity>`, `<constraints>`)
 - **GPT**: Markdown headers (`## Identity`)
 - **Gemini**: Plain text labels

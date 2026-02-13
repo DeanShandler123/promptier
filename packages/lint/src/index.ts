@@ -11,9 +11,12 @@ export { heuristicRules } from './rules/heuristic/index.js';
 export type { LlmClient } from './llm/client.js';
 export { OllamaClient } from './llm/ollama-client.js';
 export { createLlmClient } from './llm/create-client.js';
-export { createSemanticRule } from './llm/semantic-rules.js';
-export { linterPrompt, renderLinterPrompt } from './llm/system-prompt.js';
-export { parseSemanticResponse } from './llm/parser.js';
+export {
+  createSemanticRule,
+  linterPrompt,
+  renderLinterPrompt,
+  parseSemanticResponse,
+} from './rules/semantic/index.js';
 
 import type { LintRule } from './types.js';
 

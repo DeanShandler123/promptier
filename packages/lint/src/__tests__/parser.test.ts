@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { parseSemanticResponse } from '../llm/parser.js';
+import { parseSemanticResponse } from '../rules/semantic/parser.js';
 
 describe('parseSemanticResponse', () => {
   it('parses valid JSON array correctly', () => {

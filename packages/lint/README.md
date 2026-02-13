@@ -28,63 +28,63 @@ const agent = prompt('assistant')
 const linter = new Linter();
 const result = await linter.lint(agent);
 
-console.log(result.errors);   // Must fix
+console.log(result.errors); // Must fix
 console.log(result.warnings); // Should fix
-console.log(result.info);     // Consider
+console.log(result.info); // Consider
 ```
 
 ## Built-in Rules
 
 ### Token Budget
 
-| Rule | Severity | Description |
-|------|----------|-------------|
-| `token-limit-exceeded` | error | Prompt exceeds model's context window |
-| `token-limit-warning` | warning | Prompt uses >80% of context window |
+| Rule                   | Severity | Description                           |
+| ---------------------- | -------- | ------------------------------------- |
+| `token-limit-exceeded` | error    | Prompt exceeds model's context window |
+| `token-limit-warning`  | warning  | Prompt uses >80% of context window    |
 
 ### Model Mismatch
 
-| Rule | Severity | Description |
-|------|----------|-------------|
-| `xml-tags-with-gpt` | warning | Using XML tags with GPT models (prefer markdown) |
-| `markdown-with-claude` | info | Using markdown headers with Claude (prefer XML) |
+| Rule                   | Severity | Description                                      |
+| ---------------------- | -------- | ------------------------------------------------ |
+| `xml-tags-with-gpt`    | warning  | Using XML tags with GPT models (prefer markdown) |
+| `markdown-with-claude` | info     | Using markdown headers with Claude (prefer XML)  |
 
 ### Cache Efficiency
 
-| Rule | Severity | Description |
-|------|----------|-------------|
-| `dynamic-before-static` | warning | Dynamic content appears before cacheable content, reducing cache hit rate |
+| Rule                    | Severity | Description                                                               |
+| ----------------------- | -------- | ------------------------------------------------------------------------- |
+| `dynamic-before-static` | warning  | Dynamic content appears before cacheable content, reducing cache hit rate |
 
 ### Best Practice
 
-| Rule | Severity | Description |
-|------|----------|-------------|
-| `missing-identity` | warning | No identity section defined - agents should know who they are |
-| `empty-sections` | warning | Section has empty or whitespace-only content |
+| Rule               | Severity | Description                                                   |
+| ------------------ | -------- | ------------------------------------------------------------- |
+| `missing-identity` | warning  | No identity section defined - agents should know who they are |
+| `empty-sections`   | warning  | Section has empty or whitespace-only content                  |
 
 ### Ordering
 
-| Rule | Severity | Description |
-|------|----------|-------------|
-| `format-not-last` | info | Format section not at end of prompt (recommended position) |
+| Rule              | Severity | Description                                                |
+| ----------------- | -------- | ---------------------------------------------------------- |
+| `format-not-last` | info     | Format section not at end of prompt (recommended position) |
 
 ### Duplication
 
-| Rule | Severity | Description |
-|------|----------|-------------|
-| `duplicate-instructions` | warning | Same instruction appears multiple times |
+| Rule                     | Severity | Description                             |
+| ------------------------ | -------- | --------------------------------------- |
+| `duplicate-instructions` | warning  | Same instruction appears multiple times |
 
 ### Security
 
-| Rule | Severity | Description |
-|------|----------|-------------|
-| `user-input-in-system` | error | User input markers (`{{user.*}}`, `$user.*`) in static sections - potential injection risk |
+| Rule                   | Severity | Description                                                                                |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `user-input-in-system` | error    | User input markers (`{{user.*}}`, `$user.*`) in static sections - potential injection risk |
 
 ### Contradiction
 
-| Rule | Severity | Description |
-|------|----------|-------------|
-| `conflicting-patterns` | warning | Contradictory instructions (e.g., "always X" and "never X") |
+| Rule                   | Severity | Description                                                 |
+| ---------------------- | -------- | ----------------------------------------------------------- |
+| `conflicting-patterns` | warning  | Contradictory instructions (e.g., "always X" and "never X") |
 
 ## Inline Ignores
 
@@ -93,10 +93,12 @@ Disable rules directly in your prompt text:
 ```typescript
 const agent = prompt('assistant')
   .model('claude-sonnet-4-20250514')
-  .identity(`
+  .identity(
+    `
     <!-- promptier-ignore missing-identity -->
     You are a helpful assistant.
-  `)
+  `,
+  )
   .build();
 ```
 
@@ -147,8 +149,8 @@ Override rule severity in config:
 ```typescript
 const linter = new Linter({
   rules: {
-    'missing-identity': 'error',    // Upgrade to error
-    'format-not-last': 'off',       // Disable
+    'missing-identity': 'error', // Upgrade to error
+    'format-not-last': 'off', // Disable
     'markdown-with-claude': 'warning', // Upgrade to warning
   },
 });
@@ -171,9 +173,9 @@ const linter = new Linter({
 
 Available options:
 
-| Rule                  | Option      | Default | Description                               |
-|-----------------------|-------------|---------|-------------------------------------------|
-| `token-limit-warning` | `threshold` | `0.8`   | Warn when usage exceeds this ratio (0-1)  |
+| Rule                  | Option      | Default | Description                              |
+| --------------------- | ----------- | ------- | ---------------------------------------- |
+| `token-limit-warning` | `threshold` | `0.8`   | Warn when usage exceeds this ratio (0-1) |
 
 ### Via Config File
 
@@ -205,13 +207,15 @@ const noTodos = defineRule({
   description: 'No TODO comments in production prompts',
   check: (ctx) => {
     if (/TODO/i.test(ctx.text)) {
-      return [{
-        id: 'no-todos',
-        category: 'best-practice',
-        severity: 'warning',
-        message: 'Remove TODO comments before deployment',
-        suggestion: 'Complete or remove the TODO item',
-      }];
+      return [
+        {
+          id: 'no-todos',
+          category: 'best-practice',
+          severity: 'warning',
+          message: 'Remove TODO comments before deployment',
+          suggestion: 'Complete or remove the TODO item',
+        },
+      ];
     }
     return [];
   },
@@ -250,9 +254,17 @@ export default defineConfig({
         category: 'best-practice',
         defaultSeverity: 'error',
         description: 'No placeholder text',
-        check: (ctx) => /\[placeholder\]/i.test(ctx.text)
-          ? [{ id: 'no-placeholder', category: 'best-practice', severity: 'error', message: 'Remove placeholders' }]
-          : [],
+        check: (ctx) =>
+          /\[placeholder\]/i.test(ctx.text)
+            ? [
+                {
+                  id: 'no-placeholder',
+                  category: 'best-practice',
+                  severity: 'error',
+                  message: 'Remove placeholders',
+                },
+              ]
+            : [],
       }),
     ],
   },
@@ -265,17 +277,17 @@ The `check` function receives a `LintContext` with:
 
 ```typescript
 interface LintContext {
-  prompt: Prompt;           // The Prompt instance
-  text: string;             // Rendered prompt text
+  prompt: Prompt; // The Prompt instance
+  text: string; // Rendered prompt text
   sections: SectionConfig[]; // Array of sections
-  modelId: string;          // Target model ID
+  modelId: string; // Target model ID
   modelConfig: {
     contextWindow: number;
     preferredFormat: 'xml' | 'markdown' | 'plain';
     supportsCaching: boolean;
   };
-  tokenCount: number;       // Token count of rendered text
-  options?: RuleOptions;    // Rule-specific options from config
+  tokenCount: number; // Token count of rendered text
+  options?: RuleOptions; // Rule-specific options from config
 }
 ```
 
@@ -285,13 +297,14 @@ Rules return an array of warnings:
 
 ```typescript
 interface LintWarning {
-  id: string;               // Rule ID
-  category: LintCategory;   // Category for grouping
-  severity: LintSeverity;   // 'error' | 'warning' | 'info'
-  message: string;          // Human-readable message
-  suggestion?: string;      // Optional fix suggestion
-  evidence?: string;        // Optional quoted text from prompt (semantic rules)
-  position?: {              // Optional source location
+  id: string; // Rule ID
+  category: LintCategory; // Category for grouping
+  severity: LintSeverity; // 'error' | 'warning' | 'info'
+  message: string; // Human-readable message
+  suggestion?: string; // Optional fix suggestion
+  evidence?: string; // Optional quoted text from prompt (semantic rules)
+  position?: {
+    // Optional source location
     start: number;
     end: number;
     line: number;
@@ -303,6 +316,7 @@ interface LintWarning {
 ### Categories
 
 Built-in categories:
+
 - `token-budget` - Token limit issues
 - `model-mismatch` - Model-specific format issues
 - `cache-inefficiency` - Prompt caching issues
@@ -365,14 +379,14 @@ const warnings = await lint(prompt);
 
 ```typescript
 interface LintResult {
-  passed: boolean;          // No errors
-  errors: LintWarning[];    // Severity: error
-  warnings: LintWarning[];  // Severity: warning
-  info: LintWarning[];      // Severity: info
+  passed: boolean; // No errors
+  errors: LintWarning[]; // Severity: error
+  warnings: LintWarning[]; // Severity: warning
+  info: LintWarning[]; // Severity: info
   stats: {
     rulesChecked: number;
     timeMs: number;
-    llmCalls: number;       // Number of LLM calls made (semantic linting)
+    llmCalls: number; // Number of LLM calls made (semantic linting)
   };
 }
 ```
@@ -399,14 +413,14 @@ const result = await linter.lint(agent);
 
 ### Semantic Rules
 
-| Rule | Category | Description |
-| ------ | ---------- | ------------- |
-| `semantic-contradiction` | contradiction | Instructions that conflict with each other |
-| `semantic-ambiguity` | ambiguity | Vague instructions open to misinterpretation |
-| `semantic-injection-risk` | security | Patterns vulnerable to prompt injection |
-| `semantic-verbosity` | token-budget | Redundant phrasing that wastes tokens |
+| Rule                        | Category      | Description                                  |
+| --------------------------- | ------------- | -------------------------------------------- |
+| `semantic-contradiction`    | contradiction | Instructions that conflict with each other   |
+| `semantic-ambiguity`        | ambiguity     | Vague instructions open to misinterpretation |
+| `semantic-injection-risk`   | security      | Patterns vulnerable to prompt injection      |
+| `semantic-verbosity`        | token-budget  | Redundant phrasing that wastes tokens        |
 | `semantic-missing-practice` | best-practice | Missing error handling or edge case guidance |
-| `semantic-scope-creep` | best-practice | Instructions beyond the agent's stated role |
+| `semantic-scope-creep`      | best-practice | Instructions beyond the agent's stated role  |
 
 ### Custom LLM Client
 
@@ -459,11 +473,11 @@ interface LlmClient {
 }
 ```
 
-| Method | Description |
-| -------- | ------------- |
+| Method                      | Description                                                                   |
+| --------------------------- | ----------------------------------------------------------------------------- |
 | `generate(prompt, system?)` | Send a prompt (with optional system message) and return the raw text response |
-| `healthCheck()` | Verify the provider is reachable and the model is available |
-| `modelName` | Display name of the configured model |
+| `healthCheck()`             | Verify the provider is reachable and the model is available                   |
+| `modelName`                 | Display name of the configured model                                          |
 
 When `client` is provided on `LlmConfig`, the `provider`, `model`, `host`, and `timeout` fields are ignored — your client is used directly.
 

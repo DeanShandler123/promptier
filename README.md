@@ -60,11 +60,11 @@ const response = await generateText({
 
 ## Packages
 
-| Package | Version | Description |
-| ------- | ------- | ----------- |
-| **[@promptier/core](https://www.npmjs.com/package/@promptier/core)** | [![npm](https://img.shields.io/npm/v/@promptier/core.svg)](https://www.npmjs.com/package/@promptier/core) | Prompt composition and rendering |
-| **[@promptier/lint](https://www.npmjs.com/package/@promptier/lint)** | [![npm](https://img.shields.io/npm/v/@promptier/lint.svg)](https://www.npmjs.com/package/@promptier/lint) | Linting engine with heuristic rules |
-| **[@promptier/cli](https://www.npmjs.com/package/@promptier/cli)** | [![npm](https://img.shields.io/npm/v/@promptier/cli.svg)](https://www.npmjs.com/package/@promptier/cli) | CLI for linting, rendering, debugging |
+| Package                                                              | Version                                                                                                   | Description                           |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| **[@promptier/core](https://www.npmjs.com/package/@promptier/core)** | [![npm](https://img.shields.io/npm/v/@promptier/core.svg)](https://www.npmjs.com/package/@promptier/core) | Prompt composition and rendering      |
+| **[@promptier/lint](https://www.npmjs.com/package/@promptier/lint)** | [![npm](https://img.shields.io/npm/v/@promptier/lint.svg)](https://www.npmjs.com/package/@promptier/lint) | Linting engine with heuristic rules   |
+| **[@promptier/cli](https://www.npmjs.com/package/@promptier/cli)**   | [![npm](https://img.shields.io/npm/v/@promptier/cli.svg)](https://www.npmjs.com/package/@promptier/cli)   | CLI for linting, rendering, debugging |
 
 ```bash
 # Install all packages
@@ -130,8 +130,8 @@ const { text, meta } = await agent.render();
     source: {
       type: 'identity',
       fragmentId: null,
-      file: null
-    }
+      file: null,
+    },
   },
   {
     output: { start: 46, end: 128, line: 3 },
@@ -139,8 +139,8 @@ const { text, meta } = await agent.render();
       type: 'constraints',
       fragmentId: 'safety-rules',
       version: 'a1b2c3d',
-      file: './prompts/safety.md'
-    }
+      file: './prompts/safety.md',
+    },
   },
   {
     output: { start: 129, end: 203, line: 7 },
@@ -148,10 +148,10 @@ const { text, meta } = await agent.render();
       type: 'context',
       fragmentId: null,
       file: null,
-      dynamic: true
-    }
-  }
-]
+      dynamic: true,
+    },
+  },
+];
 ```
 
 Use the CLI to visualize provenance:

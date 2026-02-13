@@ -13,7 +13,7 @@ import type {
 import { heuristicRules } from './rules/heuristic/index.js';
 import type { LlmClient } from './llm/client.js';
 import { createLlmClient } from './llm/create-client.js';
-import { createSemanticRule } from './llm/semantic-rules.js';
+import { createSemanticRule } from './rules/semantic/semantic-rules.js';
 
 /**
  * Parse rule config into severity and options

@@ -32,6 +32,7 @@ promptier init --directory ./my-project
 ```
 
 Creates:
+
 - `promptier.config.ts` - Configuration file
 - `src/fragments/` - Reusable prompt fragments
 - `src/agents/` - Agent prompt definitions
@@ -224,10 +225,10 @@ src/fragments/
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 | Success (no errors) |
-| 1 | Lint errors found |
+| Code | Meaning             |
+| ---- | ------------------- |
+| 0    | Success (no errors) |
+| 1    | Lint errors found   |
 
 ## License
 

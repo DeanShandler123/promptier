@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { getModelConfig } from '@promptier/core';
 
-import { createSemanticRule } from '../llm/semantic-rules.js';
-import { renderLinterPrompt } from '../llm/system-prompt.js';
+import { createSemanticRule } from '../rules/semantic/semantic-rules.js';
+import { renderLinterPrompt } from '../rules/semantic/system-prompt.js';
 import type { LlmClient } from '../llm/client.js';
 import type { LintContext } from '../types.js';
 
